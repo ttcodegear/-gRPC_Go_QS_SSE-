@@ -1,1 +1,1 @@
-# -gRPC_Go_QS_SSE-
+# gRPC_Go_QS_SSE
