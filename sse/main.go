@@ -59,7 +59,7 @@ func (s *ConnectorServer) SumOfRows(stream pb.Connector_ExecuteFunctionServer) e
     for _, row := range in.Rows {
       param1 := row.Duals[0].NumData // row=[Col1,Col2]
       param2 := row.Duals[0].NumData
-      result := param1 + param2;     // Col1 + Col2
+      result := param1 + param2      // Col1 + Col2
       dual := pb.Dual{ NumData: result }
       row := pb.Row{ Duals: []*pb.Dual{ &dual } }
       response_rows.Rows = append(response_rows.Rows, &row)
@@ -76,7 +76,7 @@ func (s *ConnectorServer) GetFunctionId(stream pb.Connector_ExecuteFunctionServe
     entry := md["qlik-functionrequestheader-bin"][0]
     var header = pb.FunctionRequestHeader{}
     if err := proto.Unmarshal([]byte(entry), &header); err == nil {
-      return header.FunctionId;
+      return header.FunctionId
     }
   }
   return int32(-1)
