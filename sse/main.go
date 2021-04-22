@@ -1,10 +1,8 @@
 package main
 
 import (
-  //"fmt"
   "log"
   "net"
-  //"strconv"
   "io"
   "context"
   "github.com/golang/protobuf/proto"
@@ -27,7 +25,7 @@ func (s *ConnectorServer) SumOfColumn(stream pb.Connector_ExecuteFunctionServer)
     if err == io.EOF {
       var result float64 = 0.0
       for _, num := range params {
-        result += num // Col1 + Col1 + ...
+        result += num                               // Col1 + Col1 + ...
       }
       dual := pb.Dual{ NumData: result }
       row := pb.Row{ Duals: []*pb.Dual{ &dual } }
@@ -61,7 +59,7 @@ func (s *ConnectorServer) SumOfRows(stream pb.Connector_ExecuteFunctionServer) e
     for _, row := range in.Rows {
       param1 := row.Duals[0].NumData // row=[Col1,Col2]
       param2 := row.Duals[0].NumData
-      result := param1 + param2;      // Col1 + Col2
+      result := param1 + param2;     // Col1 + Col2
       dual := pb.Dual{ NumData: result }
       row := pb.Row{ Duals: []*pb.Dual{ &dual } }
       response_rows.Rows = append(response_rows.Rows, &row)
