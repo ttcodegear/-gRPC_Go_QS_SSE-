@@ -315,3 +315,8 @@ $>cd sse_eval
 
 ...
 
+$>go get -u github.com/ahmetb/go-linq/v3
+
+$>go get -u github.com/deckarep/golang-set
+
+...
