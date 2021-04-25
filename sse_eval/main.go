@@ -91,8 +91,10 @@ func ExecGoRun(script_txt string, template_name string, all_args *SSEArgs, all_r
   if err := cmd.Run(); err != nil {
     log.Printf("%v", err)
   }
-  result := stdout.String()
-  fmt.Print(result)
+  err_result := stderr.String()
+  fmt.Print(err_result)
+  std_result := stdout.String()
+  fmt.Print(std_result)
   
   retfile, err := os.Open(gobfile.Name())
   if err != nil {
@@ -232,9 +234,97 @@ func (s *ConnectorServer) ScriptAggrStr(header pb.ScriptRequestHeader, stream pb
   log.Printf("script=" + header.Script)
   // パラメータがあるか否かをチェック
   if( len(header.Params) > 0 ) {
-    return nil
+    var all_args SSEArgs = SSEArgs{}
+    for {
+      in, err := stream.Recv()
+      if err == io.EOF {
+        var all_results *SSERetVals = &SSERetVals{}
+        if err := ExecGoRun(header.Script, "ScriptAggrStr.txt", &all_args, all_results); err != nil {
+          return err
+        }
+        var response_rows pb.BundledRows
+        for _, d := range all_results.RetVals {
+          var result string = ""
+          kind := reflect.TypeOf(d).Kind()
+          val := reflect.ValueOf(d)
+          if kind == reflect.String {
+            result = val.String()
+          } else if kind == reflect.Float64 {
+            result = strconv.FormatFloat(val.Float(), 'f', -1, 64)
+          } else if kind == reflect.Int || kind == reflect.Int8 || kind == reflect.Int16 || kind == reflect.Int32 || kind == reflect.Int64 {
+            result = strconv.FormatInt(val.Int(), 10)
+          } else if kind == reflect.Uint || kind == reflect.Uint8 || kind == reflect.Uint16 || kind == reflect.Uint32 || kind == reflect.Uint64 {
+            result = strconv.FormatUint(val.Uint(), 10)
+          } else {
+            result = ""
+          }
+          dual := pb.Dual{ StrData: result }
+          r := pb.Row{ Duals: []*pb.Dual{ &dual } }
+          response_rows.Rows = append(response_rows.Rows, &r)
+        }
+        if err := stream.Send(&response_rows); err != nil {
+          return err
+        }
+        return nil
+      }
+      if err != nil {
+        return err
+      }
+      for _, row := range in.Rows {
+        script_args := []interface{}{}
+        zip := make([]ParamTuple, len(header.Params), len(header.Params))
+        for i, param := range header.Params {
+          zip[i] = ParamTuple{ param.DataType, row.Duals[i] }
+        }
+        for _, elm := range zip {
+          if  elm.dtype == pb.DataType_STRING || elm.dtype == pb.DataType_DUAL {
+            script_args = append(script_args, elm.dual.StrData)
+          } else {
+            script_args = append(script_args, elm.dual.NumData)
+          }
+        }
+        log.Printf("args=%v", script_args)
+        all_args.AllArgs = append(all_args.AllArgs, script_args)
+      }
+    }
   } else {
-    return nil
+    for {
+      _, err := stream.Recv()
+      if err == io.EOF {
+        var all_args SSEArgs = SSEArgs{}
+        var all_results *SSERetVals = &SSERetVals{}
+        if err := ExecGoRun(header.Script, "ScriptAggrStr.txt", &all_args, all_results); err != nil {
+          return err
+        }
+        var result string = ""
+        for _, d := range all_results.RetVals {
+          kind := reflect.TypeOf(d).Kind()
+          val := reflect.ValueOf(d)
+          if kind == reflect.String {
+            result = val.String()
+          } else if kind == reflect.Float64 {
+            result = strconv.FormatFloat(val.Float(), 'f', -1, 64)
+          } else if kind == reflect.Int || kind == reflect.Int8 || kind == reflect.Int16 || kind == reflect.Int32 || kind == reflect.Int64 {
+            result = strconv.FormatInt(val.Int(), 10)
+          } else if kind == reflect.Uint || kind == reflect.Uint8 || kind == reflect.Uint16 || kind == reflect.Uint32 || kind == reflect.Uint64 {
+            result = strconv.FormatUint(val.Uint(), 10)
+          } else {
+            result = ""
+          }
+        }
+        var reply pb.BundledRows
+        dual := pb.Dual{ StrData: result }
+        r := pb.Row{ Duals: []*pb.Dual{ &dual } }
+        reply.Rows = append(reply.Rows, &r)
+        if err := stream.Send(&reply); err != nil {
+          return err
+        }
+        return nil
+      }
+      if err != nil {
+        return err
+      }
+    }
   }
 }
 
