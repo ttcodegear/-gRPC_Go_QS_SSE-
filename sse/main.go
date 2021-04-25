@@ -61,8 +61,8 @@ func (s *ConnectorServer) SumOfRows(stream pb.Connector_ExecuteFunctionServer) e
       param2 := row.Duals[1].NumData
       result := param1 + param2      // Col1 + Col2
       dual := pb.Dual{ NumData: result }
-      row := pb.Row{ Duals: []*pb.Dual{ &dual } }
-      response_rows.Rows = append(response_rows.Rows, &row)
+      r := pb.Row{ Duals: []*pb.Dual{ &dual } }
+      response_rows.Rows = append(response_rows.Rows, &r)
     }
     if err := stream.Send(&response_rows); err != nil {
        return err
