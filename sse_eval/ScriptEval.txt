@@ -1,0 +1,79 @@
+package main
+
+import (
+  "log"
+  "os"
+  "flag"
+  "fmt"
+  "math"
+  "strconv"
+  "encoding/gob"
+  "reflect"
+  //"io/ioutil"
+  //"strings"
+  //"os/exec"
+  //"bytes"
+  //"runtime"
+  . "github.com/ahmetb/go-linq/v3"
+  mapset "github.com/deckarep/golang-set"
+)
+
+type SSEArgs struct {
+  AllArgs [][]interface{}
+}
+
+type SSERetVals struct {
+  RetVals []interface{}
+}
+
+func ScriptEval(args []interface{}) interface{} {
+$$$
+}
+
+func main() {
+  flag.Parse()
+  var gobfilename string
+  if len(flag.Args()) == 1 {
+    gobfilename = flag.Args()[0]
+  }
+  gobfile, err := os.Open(gobfilename)
+  if err != nil {
+    log.Fatal(err)
+  }
+  all_args := SSEArgs{}
+  decoder := gob.NewDecoder(gobfile)
+  if err := decoder.Decode(&all_args); err != nil {
+    log.Fatal(err)
+  }
+  gobfile.Close()
+
+  all_results := SSERetVals{}
+  if len(all_args.AllArgs) == 0 {
+    script_args := []interface{}{}
+    result := ScriptEval(script_args)
+    all_results.RetVals = append(all_results.RetVals, result)
+  } else {
+    for _, script_args := range all_args.AllArgs {
+      result := ScriptEval(script_args)
+      all_results.RetVals = append(all_results.RetVals, result)
+    }
+  }
+  retfile, err := os.Create(gobfilename)
+  if err != nil {
+    log.Fatal(err)
+  }
+  encoder := gob.NewEncoder(retfile)
+  if err := encoder.Encode(all_results); err != nil {
+    log.Fatal(err)
+  }
+  retfile.Close()
+}
+
+type DummyGoLinqQuery Query
+type DummyReflectMethod reflect.Method
+func DummyFunc() {
+  fmt.Println("")
+  math.NaN()
+  strconv.ParseFloat("", 64)
+  mapset.NewSet()
+}
