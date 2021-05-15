@@ -320,3 +320,42 @@ $>go get -u github.com/ahmetb/go-linq/v3
 $>go get -u github.com/deckarep/golang-set
 
 ...
+
+[for SSL]
+
+------
+
+...
+
+  "google.golang.org/grpc/credentials"
+
+...
+
+  serverCert, err := credentials.NewServerTLSFromFile("SSE_Example/sse_server_cert.pem", "SSE_Example/sse_server_key.pem")
+
+  if err != nil {
+
+    log.Fatalf("%v", err)
+
+    return
+
+  }
+
+  s := grpc.NewServer(grpc.Creds(serverCert))
+
+...
+
+------
+
+C:\Users\[user]\Documents\Qlik\Sense\Settings.ini
+
+------
+
+[Settings 7]
+
+SSEPlugin=Column,localhost:50053,C:\...\sse_Column_generated_certs\sse_Column_client_certs_used_by_qlik
+
+
+
+------
+
