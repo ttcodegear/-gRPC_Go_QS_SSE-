@@ -93,6 +93,8 @@ $>go run greeter_client/main.go
 --------------------------------------------
 
 
+----- For older Go and protoc/gRPC verion -----
+
 $>go verson
 
 go version go1.16.3
@@ -156,6 +158,7 @@ $>mkdir greeter_client
 $>emacs greeter_client/main.go
 
 $>go run greeter_client/main.go
+--------------------------------------------
 
 
 
