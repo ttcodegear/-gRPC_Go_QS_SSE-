@@ -158,6 +158,7 @@ $>mkdir greeter_client
 $>emacs greeter_client/main.go
 
 $>go run greeter_client/main.go
+
 --------------------------------------------
 
 
