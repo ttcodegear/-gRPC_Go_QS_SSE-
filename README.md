@@ -1,4 +1,52 @@
 # gRPC_Go_QS_SSE
+----- For latest Go and protoc/gRPC verion -----
+$>go version
+go version go1.17
+https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protoc-3.17.3-win64.zip
+https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protoc-3.17.3-linux-x86_64.zip
+$>unzip protoc-xxxx.zip
+$>go env -w GO111MODULE=on
+$>go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+$>go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+$>mkdir simple2
+$>cd simple2
+$>emacs greet.proto
+[greet.proto]
+-----
+...
+option go_package = "pb/greeter_server";
+...
+-----
+[gRPC - Documentation - Languages - Go - Quick start - Quick start - Regenerate gRPC code]
+https://grpc.io/docs/languages/go/quickstart/#regenerate-grpc-code
+$>mkdir -p pb/greeter_server
+$>protoc --go_out=./pb/greeter_server --go_opt=paths=source_relative --go-grpc_out=./pb/greeter_server --go-grpc_opt=paths=source_relative greet.proto
+$>ls ./pb/greeter_server/greet.pb.go
+$>ls ./pb/greeter_server/greet_grpc.pb.go
+$>go mod init simple2
+$>go get -u google.golang.org/grpc
+$>mkdir greeter_server
+$>emacs greeter_server/main.go
+[greeter_server/main.go]
+-----
+...
+pb "simple2/pb/greeter_server"
+...
+-----
+$>go run greeter_server/main.go
+$>mkdir greeter_client
+$>emacs greeter_client/main.go
+[greeter_client/main.go]
+-----
+...
+pb "simple2/pb/greeter_server"
+...
+-----
+$>go run greeter_client/main.go
+--------------------------------------------
+
+
 $>go verson
 
 go version go1.16.3
